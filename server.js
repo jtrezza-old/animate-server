@@ -18,12 +18,12 @@ server.on('listening', listening);
 function onRequest(req, res){
     let fileName = path.join(__dirname, 'public', 'index.html');
 
-    fs.readFile(fileName, function(error, file){
-        if(error){
-            return res.end(error.message);
-        }
-        res.setHeader('Content-Type', 'text/html');
-        res.end(file);
+    res.setHeader('Content-Type', 'text/html');
+    let rs = fs.createReadStream(fileName);
+    rs.pipe(res);
+
+    rs.on('error', function(error){
+        res.end(error.message);
     });
 }
 
@@ -31,8 +31,4 @@ function listening(){
     console.log(`Escuchando en el puerto ${port}`);
 }
 
-//Configuración del server
-//También acepta un callback que se ejecuta cuando ocurre el evento
-//Acá también se cambió el callback por un event emitter
-//server.listen(port, listening);
 server.listen(port);
