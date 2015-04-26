@@ -16,6 +16,22 @@ server.on('request', onRequest);
 server.on('listening', listening);
 
 function onRequest(req, res){
+    let uri = req.url;
+
+    if(uri.startsWith('/index') || uri === '/'){
+        return serveIndex(res)
+    }
+
+    if(uri === '/app.js'){
+        return serveApp(res)
+    }
+
+    res.statusCode = 404;
+    res.end(`Not found: ${uri}`);
+}
+
+function serveIndex(res)
+{
     let fileName = path.join(__dirname, 'public', 'index.html');
 
     res.setHeader('Content-Type', 'text/html');
@@ -23,6 +39,21 @@ function onRequest(req, res){
     rs.pipe(res);
 
     rs.on('error', function(error){
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(error.message);
+    });
+}
+
+function serveApp(res)
+{
+    let fileName = path.join(__dirname, 'public', 'app.js');
+
+    res.setHeader('Content-Type', 'text/javascript');
+    let rs = fs.createReadStream(fileName);
+    rs.pipe(res);
+
+    rs.on('error', function(error){
+        res.setHeader('Content-Type', 'text/plain');
         res.end(error.message);
     });
 }
